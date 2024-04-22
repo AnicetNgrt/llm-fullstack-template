@@ -25,7 +25,7 @@ def execute_expand_state(
 ) -> tuple["SystemState", list[Payload]]:
     """
     This state expects the previous state to have asked for a user input with PayloadOpenChat()
-    It takes the last user input and asks an LLM to mirror it
+    It takes the last user input and asks an LLM to expand on it
     It sends back the answer as final payload which is persisted in the history
     In between it sends statuses payloads such as PayloadChat with "Thinking..." which is not persisted because not final.
     It transitions to a search state
