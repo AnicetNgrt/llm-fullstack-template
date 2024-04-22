@@ -1,1 +1,3 @@
-All rights reserved Anicet Nougaret 2024
+LLM Fullstack Template © 2024 by Anicet Nougaret is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+*If you want a commercial use out of it, I will generally accept it once asked, and give you an enhanced license, but only if you can prove the changes you brought are significant enough.*

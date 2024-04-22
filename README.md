@@ -21,13 +21,13 @@ A template with a complete backend in Python and frontend in SvelteKit to make r
 
 The backend and the frontend communicate partially via http calls and mainly via websocket communication within persistant sessions.
 
-Sessions are handled on the frontend with the `useSessions` and `usePayloads` hooks which allow sending/receiving payloads from the backend.
+Sessions are handled on the frontend with the `useSessions` and `usePayloads` hooks which allow switching sessions and sending/receiving payloads from the backend withing these sessions.
 
-Sessions are handled on the backend via states, which are persisted for later recovery. See `backend/yourapp/example_logic/example.py`. This is where you should put your prompting/agents code.
+Sessions are handled on the backend via states, which are persisted for later recovery in a database, alongside all the payloads sent during that session. See `backend/yourapp/example_logic/example.py`. This is where you should put your prompting/agents logic.
 
 The backend features utilities to prompt models hosted by Anthropic, Perplexity, Groq and Mistral. 
 
-The backend delegates authentication partially and storage entirely to Supabase. You probably don't need to bother about it.
+The backend delegates authentication partially and storage entirely to Supabase. You probably don't need to bother about it, except during setup.
 
 
 ## Setup
@@ -69,3 +69,13 @@ The backend delegates authentication partially and storage entirely to Supabase.
 1. Install the dependencies with the help of `frontend/README.md`
 
 Note that due to dependencies optimization, the first use of the webapp after launching the dev frontend server may be super slow/irresponsive for a minute. After that hot-reloading got you covered anyway.
+
+### Naming
+
+Replace all `YOUR APP`, `YOURAPP`, `yourapp` and `Yourapp` strings within the codebase. Don't forget the directories' names as well.
+
+## License
+
+LLM Fullstack Template © 2024 by Anicet Nougaret is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+*If you want a commercial use out of it, I will generally accept it once asked, and give you an enhanced license, but only if you can prove the changes you brought are significant enough.*
