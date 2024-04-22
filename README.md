@@ -14,7 +14,7 @@ An opinionated template with a backend in Python and frontend in SvelteKit, feat
 ## Screenshots
 
 <div style="display: flex; gap: 1rem;">
-  <img src="docs/loginscreen.png" alt="login screen" style="width: 50%;">
+  <img src="docs/loginscreen.png" alt="login screen" style="width: 45%;">
   <img src="docs/screen.png" alt="chat screen" style="width: 50%;">
 </div>
 
