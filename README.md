@@ -13,15 +13,16 @@ A template with a complete backend in Python and frontend in SvelteKit to make r
 
 ## Screenshots
 
-![alt text](docs/loginscreen.png)
-
-![alt text](docs/screen.png)
+<div style="display: flex; gap: 1rem;">
+  <img src="docs/loginscreen.png" alt="login screen" style="width: 50%;">
+  <img src="docs/screen.png" alt="chat screen" style="width: 50%;">
+</div>
 
 ## How it works roughly
 
-The backend and the frontend communicate partially via http calls and mainly via websocket communication within persistant sessions.
+The backend and the frontend communicate partially via http calls and mainly via websocket.
 
-Sessions are handled on the frontend with the `useSessions` and `usePayloads` hooks which allow switching sessions and sending/receiving payloads from the backend withing these sessions.
+Sessions are handled on the frontend with the `useSessions` and `usePayloads` hooks which allow switching sessions and sending/receiving payloads to/from the backend withing these sessions.
 
 Sessions are handled on the backend via states, which are persisted for later recovery in a database, alongside all the payloads sent during that session. See `backend/yourapp/example_logic/example.py`. This is where you should put your prompting/agents logic.
 
