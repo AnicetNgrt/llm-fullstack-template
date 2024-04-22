@@ -1,0 +1,5 @@
+node_modules/
+.svelte-kit/
+.env
+__pycache__/
+*.egg-info/

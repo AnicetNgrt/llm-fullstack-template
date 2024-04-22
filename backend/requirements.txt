@@ -1,0 +1,12 @@
+flask 
+flask-socketio
+flask-cors
+simple-websocket
+python-dotenv
+supabase
+pyjwt
+python-dotenv
+anthropic
+openai
+groq
+loguru
