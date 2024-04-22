@@ -1,6 +1,6 @@
-# YOUR APP
+# LLM Fullstack Template
 
-A template with a complete backend in Python and frontend in SvelteKit to make real-time LLM apps.
+An opinionated template with a backend in Python and frontend in SvelteKit, featuring Tailwind, with a lot of features to build LLM-based state-machine like agents.
 
 ## Features
 
@@ -9,7 +9,7 @@ A template with a complete backend in Python and frontend in SvelteKit to make r
 - Authentication
 - Onboarding page for new users
 - Compartimented and persisted user sessions
-- Real-time chat with a state-based agent
+- Real-time chat with a state-machine like agent
 
 ## Screenshots
 
@@ -30,8 +30,13 @@ The backend features utilities to prompt models hosted by Anthropic, Perplexity,
 
 The backend delegates authentication partially and storage entirely to Supabase. You probably don't need to bother about it, except during setup.
 
-
 ## Setup
+
+### Requirements
+
+- node ~ 20.11
+- npm ~ 10.2.4 or equivalent
+- conda ~ 23.11 or equivalent
 
 ### Supabase and Database
 
