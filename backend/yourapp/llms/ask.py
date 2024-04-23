@@ -9,6 +9,8 @@ import anthropic
 from dotenv import load_dotenv
 from openai import OpenAI
 from groq import Groq
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage as MistralChatMessage
 
 load_dotenv()
 
@@ -17,6 +19,7 @@ class LLMProvider(Enum):
     ANTHROPIC = 0
     PPLX = 1
     GROQ = 2
+    MISTRAL = 3
 
 
 class LLMModel(Enum):
@@ -30,6 +33,10 @@ class LLMModel(Enum):
     PPLX_SONAR_SM_ONLINE = 7
     GROQ_LLAMA3_70 = 8
     GROQ_LLAMA3_8 = 9
+    MISTRAL_SMALL = 10
+    MISTRAL_MEDIUM = 11
+    MISTRAL_LARGE = 12
+    MISTRAL_MIXTRAL_8x22 = 13
 
     def __str__(self):
         """Return the string representation of the LLMModel."""
@@ -44,8 +51,22 @@ class LLMModel(Enum):
             "sonar-small-online",
             "llama3-70b-8192",
             "llama3-8b-8192",
+            "mistral-small-latest",
+            "mistral-medium-latest",
+            "mistral-large-latest",
+            "open-mixtral-8x22b"
         ]
         return names[self.value]
+
+    def is_coherent_with_provider(self, provider: LLMProvider) -> bool:
+        """Check if the LLMModel is coherent with the LLMProvider."""
+        if provider == LLMProvider.PPLX:
+            return self in [LLMModel.PPLX_LLAMA3_70, LLMModel.PPLX_LLAMA3_8, LLMModel.PPLX_MIXTRAL_8x22, LLMModel.PPLX_SONAR_MD_ONLINE, LLMModel.PPLX_SONAR_SM_ONLINE]
+        if provider == LLMProvider.GROQ:
+            return self in [LLMModel.GROQ_LLAMA3_70, LLMModel.GROQ_LLAMA3_8]
+        if provider == LLMProvider.MISTRAL:
+            return self in [LLMModel.MISTRAL_SMALL, LLMModel.MISTRAL_MEDIUM, LLMModel.MISTRAL_LARGE, LLMModel.MISTRAL_MIXTRAL_8x22]
+        return True
 
 
 def ask_llm(
@@ -53,11 +74,81 @@ def ask_llm(
     system_prompt: str = "",
     db_file_path: Optional[str] = None,
     provider: LLMProvider = LLMProvider.ANTHROPIC,
-    model: Optional[LLMModel] = None,
+    model: LLMModel = LLMModel.CLAUDE_HAIKU,
     max_tokens: int = 4000,
     temperature: float = 0.5,
+    json_mode: bool = False,
     seed: Optional[int] = None,
 ) -> Optional[str]:
+    """Query LLMs.
+
+    Please note that not all arguments work with all providers and models, especially system_prompt, max_tokens, json_mode, and temperature.
+
+    Use db_file_path to cache the queries in a CSV file.
+
+    Advanced example usages:
+
+    ```python
+    ask_llm("What is the capital of France?", provider=LLMProvider.PPLX, model=LLMModel.PPLX_LLAMA3_8, max_tokens=1000, temperature=0.3)
+    ```
+
+    ```
+    ask_llm(
+        [
+            "What is the capital of France?",
+            previous_llm_answer,
+            "Give me more details about it",
+        ],
+        provider=LLMProvider.GROQ,
+        model=LLMModel.GROQ_LLAMA3_70
+    )
+    ```
+
+    ```python
+    ask_llm("What is the capital of France?", provider=LLMProvider.PPLX, model=LLMModel.PPLX_SONAR_MD_ONLINE)
+    ```
+
+    Multimodal with Claude 3 example usage:
+
+    ```python
+    ask_llm(
+        [
+            user([
+                picture("path/to/la_eiffel_tour.png"),
+                text("What is the building in this picture?"),
+            ]),
+            assistant(text(previous_llm_answer)),
+            user([
+                picture("path/to/la_eiffel_tour.png"),
+                text("Give me its construction year"),
+            ]),
+            assistant(text("Its construction year is:")), // pre-prompt supported by Claude 3
+        ],
+        provider=LLMProvider.ANTHROPIC,
+        model=LLMModel.CLAUDE_SONNET
+    )
+    ```
+
+    JSON mode with Mistral:
+
+    ```python
+    ask_llm(
+        "Give the names of the 20 largest cities in France in order of popularity. Answer in JSON format with a top-level key 'cities' which is a list of strings.",
+        provider=LLMProvider.MISTRAL,
+        model=LLMModel.MISTRAL_LARGE,
+        json_mode=True
+    )
+    ```
+
+    Tool use with Mistral:
+
+    1. checkout https://github.com/mistralai/client-python/blob/main/examples/function_calling.py
+    2. prompt manually using the mistralai client
+    ```
+    """
+
+    assert model.is_coherent_with_provider(provider), f"Model {model} is not coherent with provider {provider}"
+
     if provider == LLMProvider.ANTHROPIC:
         client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
         if model is None:
@@ -65,6 +156,17 @@ def ask_llm(
         if seed is None:
             seed = 0
         messages = create_messages(query)
+    elif provider == LLMProvider.MISTRAL:
+        api_key = os.environ["MISTRAL_API_KEY"]
+        client = MistralClient(api_key=api_key)
+        messages = [MistralChatMessage(role="user", content=query)]
+        if isinstance(query, list):
+            messages = [
+                MistralChatMessage(role="user" if i % 2 == 0 else "assistant", content=content)
+                for i, content in enumerate(query)
+            ]
+        if len(system_prompt) > 0:
+            messages = [MistralChatMessage(role="system", content=system_prompt)] + messages
     else:
         if provider == LLMProvider.PPLX:
             llm = OpenAI(
@@ -119,6 +221,15 @@ def ask_llm(
                 system=system_prompt,
             )
             response = message.content[0].text
+        elif provider == LLMProvider.MISTRAL:
+            response = client.chat(
+                model=str(model),
+                messages=messages,
+                response_format={"type": "json_object"} if json_mode else None,
+                max_tokens=max_tokens,
+                temperature=temperature
+            )
+            response = response.choices[0].message.content
         else:
             response = llm.chat.completions.create(
                 model=str(model),

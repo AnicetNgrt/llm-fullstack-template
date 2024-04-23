@@ -46,8 +46,8 @@ Add precision and context to the above internet search query
 Answer with only the modified query without text before or after:
 """,
         system_prompt="You are a cool LLM. Cool LLMs do what they're asked for.",
-        provider=LLMProvider.PPLX,
-        model=LLMModel.PPLX_MIXTRAL_8x22,
+        provider=LLMProvider.MISTRAL,
+        model=LLMModel.MISTRAL_SMALL,
         temperature=0.0,
     )
 

@@ -10,3 +10,4 @@ anthropic
 openai
 groq
 loguru
+mistralai
