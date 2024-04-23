@@ -13,9 +13,11 @@ An opinionated template with a backend in Python and frontend in SvelteKit, feat
 
 ## Screenshots
 
-<div style="display: flex; gap: 1rem;">
+Left: login  page. Right: app page with sessions list on the left and payloads received during that session on the right.
+
+<div style="display: flex; gap: 5%;">
   <img src="docs/loginscreen.png" alt="login screen" style="width: 45%;">
-  <img src="docs/screen.png" alt="chat screen" style="width: 50%;">
+  <img src="docs/screen.png" alt="chat screen" style="width: 45%;">
 </div>
 
 ## How it works roughly
@@ -26,7 +28,9 @@ Sessions are handled on the frontend with the `useSessions` and `usePayloads` ho
 
 Sessions are handled on the backend via states, which are persisted for later recovery in a database, alongside all the payloads sent during that session. See `backend/yourapp/example_logic/example.py`. This is where you should put your prompting/agents logic.
 
-The backend features utilities to prompt models hosted by Anthropic, Perplexity, Groq and Mistral. 
+The backend features utilities to prompt models hosted by Anthropic, Perplexity, Groq and Mistral. Check the docstring for `ask_llm` in `backend/yourapp/llms/ask.py`.
+
+Payloads sent by the frontend are forgotten by it immediately, but the backend sends them back once it received them, so the conversation's ground truth is given by the backend.
 
 The backend delegates authentication partially and storage entirely to Supabase. You probably don't need to bother about it, except during setup.
 
