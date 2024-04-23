@@ -105,7 +105,6 @@ export function usePayloads(sessionId, onSessionCreated, onPayloadReceived) {
                 open(value.socket);
             }
             if (data.payload.type === 'session_created') {
-                console.log(data)
                 sessionId = data.payload.id;
                 onSessionCreated(data.payload.id);
             }
@@ -115,7 +114,7 @@ export function usePayloads(sessionId, onSessionCreated, onPayloadReceived) {
                 close();
             }
 
-            onPayloadReceived(data.payload);
+            onPayloadReceived(data.payload, data.is_system, data.created_at);
         };
     });
 

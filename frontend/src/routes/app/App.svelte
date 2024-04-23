@@ -17,8 +17,11 @@
 	let payloads = writable([]);
 	let message = '';
 
-	function handlePayloadReceived(payload) {
+	function handlePayloadReceived(payload, isSystem, createdAt) {
 		onPayloadReceived(payload);
+
+		console.log(`payload by ${isSystem ? 'system' : 'user'} at ${createdAt}`);
+		console.log(payload);
 
 		payloads.update((inner) => {
 			inner.push(payload);
