@@ -20,6 +20,7 @@ class LLMProvider(Enum):
     PPLX = 1
     GROQ = 2
     MISTRAL = 3
+    OPENAI = 4
 
 
 class LLMModel(Enum):
@@ -37,6 +38,10 @@ class LLMModel(Enum):
     MISTRAL_MEDIUM = 11
     MISTRAL_LARGE = 12
     MISTRAL_MIXTRAL_8x22 = 13
+    OPENAI_GPT_4_TURBO = 14
+    OPENAI_GPT_4_TURBO_PREVIEW = 15
+    OPENAI_GPT_4_VISION_PREVIEW = 16
+    OPENAI_GPT_3_5_TURBO = 17
 
     def __str__(self):
         """Return the string representation of the LLMModel."""
@@ -54,7 +59,11 @@ class LLMModel(Enum):
             "mistral-small-latest",
             "mistral-medium-latest",
             "mistral-large-latest",
-            "open-mixtral-8x22b"
+            "open-mixtral-8x22b",
+            "gpt-4-turbo",
+            "gpt-4-turbo-preview",
+            "gpt-4-vision-preview",
+            "gpt-3.5-turbo"
         ]
         return names[self.value]
 
@@ -66,6 +75,8 @@ class LLMModel(Enum):
             return self in [LLMModel.GROQ_LLAMA3_70, LLMModel.GROQ_LLAMA3_8]
         if provider == LLMProvider.MISTRAL:
             return self in [LLMModel.MISTRAL_SMALL, LLMModel.MISTRAL_MEDIUM, LLMModel.MISTRAL_LARGE, LLMModel.MISTRAL_MIXTRAL_8x22]
+        if provider == LLMProvider.OPENAI:
+            return self in [LLMModel.OPENAI_GPT_4_TURBO, LLMModel.OPENAI_GPT_4_TURBO_PREVIEW, LLMModel.OPENAI_GPT_4_VISION_PREVIEW, LLMModel.OPENAI_GPT_3_5_TURBO]
         return True
 
 
@@ -167,6 +178,11 @@ def ask_llm(
             ]
         if len(system_prompt) > 0:
             messages = [MistralChatMessage(role="system", content=system_prompt)] + messages
+    elif provider == LLMProvider.OPENAI:
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        if model is None:
+            model = LLMModel.OPENAI_GPT_3_5_TURBO
+        messages = create_openai_messages(query, system_prompt)
     else:
         if provider == LLMProvider.PPLX:
             llm = OpenAI(
@@ -230,6 +246,14 @@ def ask_llm(
                 temperature=temperature
             )
             response = response.choices[0].message.content
+        elif provider == LLMProvider.OPENAI:
+            response = client.chat.completions.create(
+                model=str(model),
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            response = response.choices[0].message.content
         else:
             response = llm.chat.completions.create(
                 model=str(model),
@@ -291,6 +315,34 @@ def create_messages(query):
                     else:
                         content.append(element)
                 messages.append({"role": message["role"], "content": content})
+    return messages
+
+
+def create_openai_messages(query, system_prompt):
+    messages = [{"role": "user", "content": query}]
+    if isinstance(query, list):
+        messages = []
+        for i, message in enumerate(query):
+            if isinstance(message, str):
+                role = "user" if i % 2 == 0 else "assistant"
+                messages.append({"role": role, "content": message})
+            else:
+                content = ""
+                for element in message["content"]:
+                    if element["type"] == "image":
+                        with open(element["path"], "rb") as image:
+                            if element["path"].endswith(".jpeg") or element[
+                                "path"
+                            ].endswith(".jpg"):
+                                media_type = "image/jpeg"
+                            elif element["path"].endswith(".png"):
+                                media_type = "image/png"
+                            content += f"<image_url>data:{media_type};base64,{image.read().decode('utf-8')}</image_url>"
+                    else:
+                        content += element["text"]
+                messages.append({"role": message["role"], "content": content})
+    if len(system_prompt) > 0:
+        messages = [{"role": "system", "content": system_prompt}] + messages
     return messages
 
 
