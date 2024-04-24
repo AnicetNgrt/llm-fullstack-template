@@ -78,9 +78,11 @@ The backend delegates authentication partially and storage entirely to Supabase.
 
 1. Install the dependencies with the help of `frontend/README.md`
 
+2. Add and edit `frontend/.env` with the help of `frontend/.env.sample`
+
 Note that due to dependencies optimization, the first use of the webapp after launching the dev frontend server may be super slow/irresponsive for a minute. After that hot-reloading got you covered anyway.
 
-### Naming
+### (Optional) Naming
 
 Replace all `YOUR APP`, `YOURAPP`, `yourapp` and `Yourapp` strings within the codebase. Don't forget the directories' names as well.
 
