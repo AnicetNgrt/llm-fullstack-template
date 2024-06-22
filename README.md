@@ -70,7 +70,7 @@ The backend delegates authentication partially and storage entirely to Supabase.
 
 ### Backend
 
-1. Add and edit `backend/.env` with the help of `backend/.env.sample`
+1. Add and edit `backend/.env` with the help of `backend/.env.example`
 
 2. Create the environment and install the dependencies with the help of `backend/README.md`
 
@@ -78,7 +78,7 @@ The backend delegates authentication partially and storage entirely to Supabase.
 
 1. Install the dependencies with the help of `frontend/README.md`
 
-2. Add and edit `frontend/.env` with the help of `frontend/.env.sample`
+2. Add and edit `frontend/.env` with the help of `frontend/.env.example`
 
 Note that due to dependencies optimization, the first use of the webapp after launching the dev frontend server may be super slow/irresponsive for a minute. After that hot-reloading got you covered anyway.
 
